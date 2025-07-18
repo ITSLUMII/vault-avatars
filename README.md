@@ -1,55 +1,90 @@
 # jf-avatars-images
 
-A curated collection of avatar images and metadata designed to work seamlessly with the [jf-avatars](https://github.com/kalibrado/jf-avatars) project.
+This project automatically generates the JSON metadata files needed to use custom avatars with the [jf-avatars](https://github.com/kalibrado/jf-avatars) project.
 
-This repository contains avatar images and a metadata index used to dynamically populate the avatar selector interface.
+A Python script, `image_indexer.py`, scans an image folder (including subfolders for categories) and creates:
 
-## 📁 Repository Structure
+* `images_metadata.json`: a list of images with their URLs, dimensions, size, etc.
+* `folders_names.json`: a list of category names (the subfolder names).
 
-- `images/` : All avatar images are stored here  
-- `images_metadata.json` : Auto-generated metadata for all images  
-- `image_indexer.py` : Python script to regenerate metadata (used internally or locally)
+---
 
-## 🧠 How It Works
+## Prerequisites
 
-- The `images/` folder contains all available avatar images.
-- A GitHub Action (or manual script) scans the folder and generates a `images_metadata.json` file.
-- This metadata is used by [jf-avatars](https://github.com/kalibrado/jf-avatars) to display and filter the avatars in the UI.
+* Python 3.x
+* Pillow library: install via `pip install pillow`
 
-## 🚀 Usage with jf-avatars
+---
 
-To use this image repository with `jf-avatars`, simply point to the latest release of the JS module:
+## Installation & Usage
 
-```html
-<script
-  type="module"
-  src="https://github.com/kalibrado/jf-avatars/releases/download/{version}/main.js"
-  defer
-></script>
-```
-
-Make sure to replace `{version}` with the desired release tag (e.g., `v1.0.0`).
-
-## 🛠 Regenerate Metadata
-
-To regenerate the `images_metadata.json` file manually after adding or changing images:
+1. Clone this repository:
 
 ```bash
-python image_indexer.py
+git clone https://github.com/kalibrado/jf-avatars-images.git
+cd jf-avatars-images
 ```
 
-> ⚙️ **Note**: In production, a GitHub Action will automatically regenerate this file when changes are pushed to the `images/` directory.
+2. Place your avatar images inside an `images/` folder. You can organize avatars by category using subfolders, for example:
 
-## 🖼 Adding New Avatars
+```
+images/
+├── Steam/
+├── Xbox One/
+├── Pop Culture/
+└── etc...
+```
 
-1. Add your image(s) to the `images/` directory.
-2. Commit and push the changes.
-3. A GitHub workflow will run and automatically update the `images_metadata.json`.
+3. Edit the `image_indexer.py` file to match your environment:
 
-## 🤝 Contributing
+```python
+base_url = "http://192.168.X.X:8096/web/images/"
+image_folder = "images"
+output_src_images = "images_metadata.json"
+output_src_folders = "folders_names.json"
+```
 
-Feel free to open a PR if you'd like to contribute new avatars!  
-Please ensure the following:
-- Images are square (1:1 ratio)
-- Max size around 512x512 px
-- Content is appropriate for public use
+* `base_url`: the URL Jellyfin uses to access your images folder.
+* `image_folder`: local path to your images folder (default is `images/`).
+* `output_src_images` & `output_src_folders`: names of the generated JSON files.
+
+4. Place the `images/` folder in a location accessible by Jellyfin, typically the `web/` folder.
+
+> If using Docker, mount a volume to `/usr/share/jellyfin/web/images/` containing your `images/` folder.
+
+5. Run the script:
+
+```bash
+python3 image_indexer.py
+```
+
+6. Two JSON files will be generated in the current folder:
+
+* `images_metadata.json`
+* `folders_names.json`
+
+Copy them to the same `web/` folder where `images/` is located.
+
+---
+
+## Jellyfin Configuration
+
+To use your custom avatars, add the following lines in **Dashboard > Display > Custom CSS**:
+
+```css
+--jf-avatars-url-images: 'http://192.168.X.X:8096/web/images_metadata.json';
+--jf-avatars-url-images-cat: 'http://192.168.X.X:8096/web/folders_names.json';
+```
+
+---
+
+## FAQ
+
+**Q: Can I use this script with offline images?**
+A: Yes, as long as Jellyfin can access the images via a local URL (e.g., placed in the `web/` folder).
+
+**Q: How do I organize avatars into categories?**
+A: Simply create subfolders inside `images/`. The script automatically detects these folder names as categories.
+
+**Q: I’m not using Docker; where should I place the files?**
+A: Usually `/usr/share/jellyfin/web/` on Linux or `C:\Program Files\Jellyfin\Server\jellyfin-web` on Windows.
