@@ -26970,6 +26970,15 @@
     }
   },
   {
+    "name": "admin1.gif",
+    "folder": "NEW TEST",
+    "url": "https://raw.githubusercontent.com/ITSLUMII/vault-avatars/refs/heads/main/images/Admin/admin1.gif?raw=true",
+    "dimensions": {
+      "width": 1080,
+      "height": 1080
+    }
+  },
+  {
     "name": "xbox-one-47",
     "folder": "Xbox One",
     "url": "https://raw.githubusercontent.com/kalibrado/js-avatars-images/main/images/Xbox One/xbox-one-47.png?raw=true",
